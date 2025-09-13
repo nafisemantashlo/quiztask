@@ -1,15 +1,26 @@
-   import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { QuizContext } from "../Context/quizContext";
 import { useNavigate } from "react-router-dom";
 
 function Quiz() {
   const { state, dispatch } = useContext(QuizContext);
   const navigate = useNavigate();
-  const { currentQuestion, questions } = state;
-
+  const { currentQuestion, questions, loading } = state;
   const question = questions[currentQuestion];
-  if (!question) {
-    navigate("/result");
+  useEffect(() => {
+    if (!loading && currentQuestion >= questions.length) {
+      navigate("/result");
+    }
+  }, [currentQuestion, questions.length, navigate, loading]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-[#a7c592]">
+        <h2 className="text-2xl font-bold text-white">Loading Questions...</h2>
+      </div>
+    );
+  }
+  if (currentQuestion >= questions.length) {
     return null;
   }
   return (
@@ -18,13 +29,12 @@ function Quiz() {
         <h1 className="text-3xl font-bold mb-6">
           Question {currentQuestion + 1}/{questions.length}
         </h1>
-        <h2 celassName="text-3xl font-semibold mb-6">{question.question}</h2>
+        <h2 className="text-2xl font-semibold mb-6">{question.question}</h2>
         <div>
           {question.options.map((opt, index) => (
             <button
               key={index}
-              className="block w-full bg-[#accf95] rounded-lg py-2 my-2 hover:bg-[#42642b] transition  hover:scale-110"
-              Restart Quiz
+              className="block w-full bg-[#accf95] rounded-lg py-2 my-2 hover:bg-[#42642b] transition hover:scale-110"
               onClick={() =>
                 dispatch({ type: "ANSWER-QUESTION", payload: index })}>{opt}</button>
           ))}
@@ -34,4 +44,4 @@ function Quiz() {
   );
 }
 
-export default Quiz; 
+export default Quiz;
